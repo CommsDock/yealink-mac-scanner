@@ -1,0 +1,9 @@
+services:
+  yealink-mac-scanner:
+    build:
+      context: .
+    image: commsdock/yealink-mac-scanner:local
+    container_name: yealink-mac-scanner
+    restart: unless-stopped
+    ports:
+      - "8080:80"
