@@ -7,3 +7,6 @@ dist/
 coverage/
 MAC Sample/
 docs/superpowers/
+*.test.ts
+*.test.tsx
+server/*.test.mjs

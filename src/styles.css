@@ -22,7 +22,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -366,6 +367,21 @@ h2 {
   color: #111812;
 }
 
+.email-form input,
+.email-form textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #cbd4c5;
+  border-radius: 8px;
+  padding: 12px;
+  background: #ffffff;
+  color: #111812;
+}
+
+.email-form textarea {
+  resize: vertical;
+}
+
 .manual-row button,
 .utility-actions button {
   border: 1px solid #cbd4c5;
@@ -449,6 +465,45 @@ h2 {
   border-radius: 8px;
   background: #fff7f4;
   color: #9a3412;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(17, 24, 18, 0.48);
+}
+
+.email-modal {
+  width: min(100%, 560px);
+  max-height: min(92vh, 720px);
+  overflow: auto;
+  border: 1px solid #dfe5da;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 28px 70px rgba(17, 24, 18, 0.22);
+  padding: 18px;
+}
+
+.modal-heading {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.email-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.email-form label {
+  color: #26312a;
+  font-weight: 800;
 }
 
 @media (max-width: 680px) {

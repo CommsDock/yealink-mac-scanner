@@ -9,8 +9,10 @@ Mobile browser
   -> https://macscanner.telcoconcepts.com.au
   -> EC2 security group ports 80/443
   -> Caddy reverse proxy on Ubuntu
-  -> Docker app on 127.0.0.1:8080
+  -> Docker web app on 127.0.0.1:8080
+  -> Docker email API on 127.0.0.1:8081
   -> Nginx serving the built Vite app
+  -> AWS SES sending batch emails
 ```
 
 ## 1. Create The EC2 Instance
@@ -202,6 +204,7 @@ From the repo directory:
 
 ```bash
 cd /opt/commsdock/apps/yealink-mac-scanner
+printf "SES_REGION=ap-southeast-2\nSES_FROM_EMAIL=macscanner@telcoconcepts.com.au\nALLOWED_RECIPIENT_DOMAINS=telcoconcepts.com.au\n" > .env
 docker compose up -d --build
 ```
 
@@ -210,6 +213,7 @@ Check the container:
 ```bash
 docker compose ps
 curl -I http://localhost:8080
+curl -I http://localhost:8081/health
 df -h
 ```
 
@@ -229,7 +233,7 @@ Camera access will not work properly here because this is plain HTTP. The real a
 
 ## 9. Install Caddy For HTTPS
 
-Caddy is the reverse proxy. It receives public HTTPS traffic and forwards requests to the Docker app on `127.0.0.1:8080`.
+Caddy is the reverse proxy. It receives public HTTPS traffic and forwards web requests to `127.0.0.1:8080`, and email API requests to `127.0.0.1:8081`.
 
 Install Caddy:
 
@@ -277,7 +281,13 @@ Use:
 
 ```caddyfile
 macscanner.telcoconcepts.com.au {
-	reverse_proxy 127.0.0.1:8080
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8081
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:8080
+	}
 }
 ```
 
@@ -349,6 +359,7 @@ Health checks:
 ```bash
 docker compose ps
 curl -I https://macscanner.telcoconcepts.com.au
+curl -I http://localhost:8081/health
 df -h
 ```
 
@@ -423,11 +434,55 @@ Docker Compose
 Nginx container
   Serves the static Vite production build.
 
+Email API container
+  Receives `/api/email-captures` requests and sends the captured list through AWS SES.
+
 Caddy
-  Handles public HTTPS and forwards requests to the Docker app.
+  Handles public HTTPS and forwards requests to the web app or email API.
+
+AWS SES
+  Sends emails from `macscanner@telcoconcepts.com.au`.
 ```
 
-## 15. Current Production URL
+## 15. Email Sending With AWS SES
+
+The email feature uses the AWS SES API from the server-side email API container. Do not put SMTP credentials or AWS keys in the browser app.
+
+AWS setup:
+
+- SES region: `ap-southeast-2`
+- Verified sender domain: `telcoconcepts.com.au`
+- From address: `macscanner@telcoconcepts.com.au`
+- EC2 IAM role permission: `ses:SendEmail` and `ses:SendRawEmail`
+
+Sandbox note:
+
+```text
+While SES is in sandbox, recipients must also be verified identities.
+After production access is approved, normal colleague recipient addresses can receive emails.
+```
+
+Server config lives in `/opt/commsdock/apps/yealink-mac-scanner/.env`:
+
+```bash
+SES_REGION=ap-southeast-2
+SES_FROM_EMAIL=macscanner@telcoconcepts.com.au
+ALLOWED_RECIPIENT_DOMAINS=telcoconcepts.com.au
+```
+
+The recipient-domain allowlist prevents the public email endpoint from becoming an open relay. Add comma-separated domains only when there is a real business need:
+
+```bash
+ALLOWED_RECIPIENT_DOMAINS=telcoconcepts.com.au,example-partner.com
+```
+
+After changing `.env`, restart:
+
+```bash
+docker compose up -d
+```
+
+## 16. Current Production URL
 
 ```text
 https://macscanner.telcoconcepts.com.au

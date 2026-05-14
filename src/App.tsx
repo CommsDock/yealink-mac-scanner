@@ -1,4 +1,4 @@
-import { Copy, Download, ListChecks, Plus, Trash2 } from "lucide-react";
+import { Download, ListChecks, Mail, Plus, Trash2, X } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { ScannerView } from "./components/ScannerView";
 import { addCapture, loadBatch, removeCapture, serializeBatch } from "./domain/batch";
@@ -32,6 +32,11 @@ export default function App() {
   const [manualValue, setManualValue] = useState("");
   const [message, setMessage] = useState("Ready to scan the MAC barcode.");
   const [metrics, setMetrics] = useState<SessionMetrics>(initialMetrics);
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailRecipient, setEmailRecipient] = useState("");
+  const [emailSubject, setEmailSubject] = useState("Yealink MAC capture list");
+  const [emailNote, setEmailNote] = useState("");
+  const [emailSending, setEmailSending] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, serializeBatch(items));
@@ -80,9 +85,43 @@ export default function App() {
     }
   }
 
-  async function copyList() {
-    await navigator.clipboard.writeText(items.map((item) => item.mac).join("\n"));
-    setMessage("MAC list copied.");
+  async function sendEmail(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (items.length === 0 || emailSending) {
+      return;
+    }
+
+    setEmailSending(true);
+    setMessage("Sending MAC list email...");
+
+    try {
+      const response = await fetch("/api/email-captures", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recipient: emailRecipient,
+          subject: emailSubject,
+          note: emailNote,
+          captures: items.map(({ mac, raw, capturedAt }) => ({ mac, raw, capturedAt })),
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(typeof payload.error === "string" ? payload.error : "Email send failed.");
+      }
+
+      setEmailOpen(false);
+      setEmailRecipient("");
+      setEmailNote("");
+      setMessage(`MAC list emailed to ${emailRecipient}.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Email send failed.");
+    } finally {
+      setEmailSending(false);
+    }
   }
 
   function exportCsv() {
@@ -157,9 +196,9 @@ export default function App() {
             <h2>Captured MAC addresses</h2>
           </div>
           <div className="utility-actions">
-            <button type="button" onClick={copyList} disabled={items.length === 0}>
-              <Copy aria-hidden="true" />
-              Copy list
+            <button type="button" onClick={() => setEmailOpen(true)} disabled={items.length === 0}>
+              <Mail aria-hidden="true" />
+              Email list
             </button>
             <button type="button" onClick={exportCsv} disabled={items.length === 0}>
               <Download aria-hidden="true" />
@@ -198,6 +237,74 @@ export default function App() {
           </ol>
         )}
       </section>
+
+      {emailOpen ? (
+        <div className="modal-backdrop" role="presentation">
+          <section className="email-modal" role="dialog" aria-modal="true" aria-labelledby="email-modal-title">
+            <div className="modal-heading">
+              <div>
+                <p className="overline">Share batch</p>
+                <h2 id="email-modal-title">Email captured MACs</h2>
+              </div>
+              <button
+                type="button"
+                className="icon-button"
+                aria-label="Close email form"
+                onClick={() => setEmailOpen(false)}
+                disabled={emailSending}
+              >
+                <X aria-hidden="true" />
+              </button>
+            </div>
+
+            <form className="email-form" onSubmit={sendEmail}>
+              <label htmlFor="email-recipient">Recipient email</label>
+              <input
+                id="email-recipient"
+                type="email"
+                value={emailRecipient}
+                onChange={(event) => setEmailRecipient(event.target.value)}
+                placeholder="colleague@telcoconcepts.com.au"
+                required
+              />
+
+              <label htmlFor="email-subject">Subject</label>
+              <input
+                id="email-subject"
+                value={emailSubject}
+                onChange={(event) => setEmailSubject(event.target.value)}
+                required
+              />
+
+              <label htmlFor="email-note">Message</label>
+              <textarea
+                id="email-note"
+                value={emailNote}
+                onChange={(event) => setEmailNote(event.target.value)}
+                placeholder="Optional note for the recipient"
+                rows={4}
+              />
+
+              <p className="status-line">{items.length} MAC addresses will be sent with a CSV attachment.</p>
+
+              <div className="action-row">
+                <button type="submit" className="primary-action" disabled={emailSending}>
+                  <Mail aria-hidden="true" />
+                  {emailSending ? "Sending..." : "Send email"}
+                </button>
+                <button
+                  type="button"
+                  className="secondary-action"
+                  onClick={() => setEmailOpen(false)}
+                  disabled={emailSending}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

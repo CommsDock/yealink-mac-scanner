@@ -7,3 +7,18 @@ services:
     restart: unless-stopped
     ports:
       - "8080:80"
+
+  yealink-mac-email-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.email-api
+    image: commsdock/yealink-mac-email-api:local
+    container_name: yealink-mac-email-api
+    restart: unless-stopped
+    environment:
+      SES_REGION: ${SES_REGION:-ap-southeast-2}
+      SES_FROM_EMAIL: ${SES_FROM_EMAIL:-macscanner@telcoconcepts.com.au}
+      ALLOWED_RECIPIENT_DOMAINS: ${ALLOWED_RECIPIENT_DOMAINS:-telcoconcepts.com.au}
+      PORT: 8081
+    ports:
+      - "127.0.0.1:8081:8081"

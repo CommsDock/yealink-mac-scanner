@@ -15,6 +15,13 @@ beforeEach(() => {
   URL.createObjectURL = vi.fn(() => "blob:mac-csv");
   URL.revokeObjectURL = vi.fn();
   HTMLAnchorElement.prototype.click = vi.fn();
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({ ok: true }),
+    }),
+  );
 });
 
 describe("App", () => {
@@ -54,20 +61,25 @@ describe("App", () => {
     expect(screen.queryByText("44:DB:D2:6F:B9:EF")).not.toBeInTheDocument();
   });
 
-  it("copies the normalized MAC list", async () => {
+  it("emails the normalized MAC list", async () => {
     const user = userEvent.setup();
-    const writeText = vi.fn().mockResolvedValue(undefined);
-    Object.defineProperty(navigator, "clipboard", {
-      configurable: true,
-      value: { writeText },
-    });
     render(<App />);
 
     await user.type(screen.getByLabelText("Manual MAC entry"), "44DBD26FB9EF");
     await user.click(screen.getByRole("button", { name: "Add manually" }));
-    await user.click(screen.getByRole("button", { name: "Copy list" }));
+    await user.click(screen.getByRole("button", { name: "Email list" }));
+    await user.type(screen.getByLabelText("Recipient email"), "ops@example.com");
+    await user.click(screen.getByRole("button", { name: "Send email" }));
 
-    expect(writeText).toHaveBeenCalledWith("44:DB:D2:6F:B9:EF");
+    expect(fetch).toHaveBeenCalledWith(
+      "/api/email-captures",
+      expect.objectContaining({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: expect.stringContaining("44:DB:D2:6F:B9:EF"),
+      }),
+    );
+    expect(await screen.findByText("MAC list emailed to ops@example.com.")).toBeInTheDocument();
   });
 
   it("offers CSV export when captures exist", async () => {
