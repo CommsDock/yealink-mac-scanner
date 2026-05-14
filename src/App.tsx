@@ -37,6 +37,7 @@ export default function App() {
   const [emailSubject, setEmailSubject] = useState("Yealink MAC capture list");
   const [emailNote, setEmailNote] = useState("");
   const [emailSending, setEmailSending] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, serializeBatch(items));
@@ -93,14 +94,16 @@ export default function App() {
     }
 
     setEmailSending(true);
+    setToastMessage("");
     setMessage("Sending MAC list email...");
+    const recipient = emailRecipient.trim();
 
     try {
       const response = await fetch("/api/email-captures", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          recipient: emailRecipient,
+          recipient,
           subject: emailSubject,
           note: emailNote,
           captures: items.map(({ mac, raw, capturedAt }) => ({ mac, raw, capturedAt })),
@@ -116,9 +119,12 @@ export default function App() {
       setEmailOpen(false);
       setEmailRecipient("");
       setEmailNote("");
-      setMessage(`MAC list emailed to ${emailRecipient}.`);
+      setMessage(`MAC list emailed to ${recipient}.`);
+      setToastMessage(`MAC list emailed to ${recipient}.`);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Email send failed.");
+      const errorMessage = error instanceof Error ? error.message : "Email send failed.";
+      setMessage(errorMessage);
+      setToastMessage(errorMessage);
     } finally {
       setEmailSending(false);
     }
@@ -303,6 +309,12 @@ export default function App() {
               </div>
             </form>
           </section>
+        </div>
+      ) : null}
+
+      {toastMessage ? (
+        <div className="toast-message" role="status" aria-live="polite">
+          {toastMessage}
         </div>
       ) : null}
     </main>

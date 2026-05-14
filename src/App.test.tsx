@@ -79,7 +79,8 @@ describe("App", () => {
         body: expect.stringContaining("44:DB:D2:6F:B9:EF"),
       }),
     );
-    expect(await screen.findByText("MAC list emailed to ops@example.com.")).toBeInTheDocument();
+    expect(await screen.findAllByText("MAC list emailed to ops@example.com.")).toHaveLength(2);
+    expect(screen.getAllByRole("status").at(-1)).toHaveTextContent("MAC list emailed to ops@example.com.");
   });
 
   it("offers CSV export when captures exist", async () => {
