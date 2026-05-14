@@ -1,6 +1,6 @@
 :root {
-  color: #18221b;
-  background: #f5f7f1;
+  color: #142018;
+  background: #f4f7f2;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-synthesis: none;
@@ -17,8 +17,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    linear-gradient(135deg, rgba(58, 107, 80, 0.14), transparent 34rem),
-    #f5f7f1;
+    radial-gradient(circle at top left, rgba(47, 127, 87, 0.16), transparent 30rem),
+    linear-gradient(180deg, #f7faf5 0%, #eef4ec 100%);
 }
 
 button,
@@ -37,24 +37,24 @@ button:disabled {
 }
 
 .app-shell {
-  width: min(100%, 960px);
+  width: min(100%, 1040px);
   margin: 0 auto;
-  padding: 18px;
+  padding: 20px;
 }
 
 .hero {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 18px;
+  gap: 16px;
   align-items: center;
-  padding: 18px 0 22px;
+  padding: 12px 0 18px;
 }
 
 .overline {
   margin: 0 0 5px;
-  color: #5b6a5f;
+  color: #52705d;
   font-size: 0.76rem;
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: 0;
   text-transform: uppercase;
 }
@@ -67,8 +67,8 @@ h2 {
 }
 
 h1 {
-  font-size: clamp(2.2rem, 9vw, 4.8rem);
-  line-height: 0.95;
+  font-size: clamp(2.15rem, 8vw, 4.35rem);
+  line-height: 0.96;
 }
 
 h2 {
@@ -77,7 +77,7 @@ h2 {
 
 .hero-copy {
   max-width: 34rem;
-  margin: 12px 0 0;
+  margin: 10px 0 0;
   color: #47564b;
   font-size: 1rem;
   line-height: 1.5;
@@ -85,32 +85,47 @@ h2 {
 
 .progress-ring {
   display: grid;
-  place-items: center;
-  width: 118px;
-  height: 118px;
-  border: 10px solid #d8dfd1;
-  border-top-color: #2f7f57;
-  border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 16px 32px rgba(29, 44, 32, 0.12);
-  text-align: center;
+  gap: 7px;
+  min-width: 172px;
+  border: 1px solid #dbe6d8;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #ffffff, #f7fbf6);
+  box-shadow: 0 18px 44px rgba(30, 45, 32, 0.1);
+  padding: 14px;
 }
 
 .progress-ring span {
   display: block;
   color: #111812;
-  font-size: 1.3rem;
-  font-weight: 850;
+  font-size: 1.55rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .progress-ring small {
-  color: #667267;
+  order: -1;
+  color: #5a6a5d;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 850;
+  text-transform: uppercase;
 }
 
 .progress-ring--complete {
   border-color: #2f7f57;
+  background: #eef8f1;
+}
+
+.progress-track {
+  overflow: hidden;
+  height: 7px;
+  border-radius: 999px;
+  background: #dfe8db;
+}
+
+.progress-track div {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1f6f4c, #52a36d);
 }
 
 .scanner-panel,
@@ -118,14 +133,16 @@ h2 {
 .metrics-panel,
 .batch-panel {
   margin-top: 14px;
-  border: 1px solid #dfe5da;
+  border: 1px solid #dbe5d8;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 18px 42px rgba(32, 44, 35, 0.08);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 44px rgba(28, 42, 31, 0.08);
 }
 
 .scanner-panel {
-  padding: 12px;
+  padding: 14px;
+  border-color: #cfded0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 252, 247, 0.96));
 }
 
 .scanner-panel--unsupported {
@@ -150,32 +167,35 @@ h2 {
   width: 46px;
   height: 46px;
   border-radius: 8px;
-  background: #ebf3ed;
+  background: #e8f4ec;
   color: #2f7f57;
 }
 
 .camera-frame {
   position: relative;
   overflow: hidden;
-  min-height: 260px;
+  min-height: 300px;
   border-radius: 8px;
   background:
-    linear-gradient(135deg, rgba(14, 20, 15, 0.86), rgba(39, 55, 43, 0.92)),
-    #17201a;
+    radial-gradient(circle at 30% 20%, rgba(67, 102, 76, 0.3), transparent 16rem),
+    linear-gradient(135deg, rgba(12, 22, 15, 0.95), rgba(24, 44, 31, 0.96)),
+    #102118;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
 
 .camera-frame video {
   width: 100%;
   height: 100%;
-  min-height: 260px;
+  min-height: 300px;
   object-fit: cover;
 }
 
 .scan-guide {
   position: absolute;
-  inset: 18%;
+  inset: 20% 17%;
   border: 2px solid rgba(255, 255, 255, 0.82);
   border-radius: 8px;
+  box-shadow: 0 0 0 999px rgba(5, 13, 8, 0.18);
 }
 
 .scan-guide em {
@@ -187,7 +207,7 @@ h2 {
   max-width: 100%;
   padding: 6px 10px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(247, 250, 245, 0.94);
   color: #17201a;
   font-size: 0.78rem;
   font-style: normal;
@@ -199,8 +219,9 @@ h2 {
   top: 50%;
   left: 8%;
   right: 8%;
-  height: 2px;
+  height: 3px;
   background: #f1c44d;
+  box-shadow: 0 0 18px rgba(241, 196, 77, 0.42);
 }
 
 .primary-action,
@@ -213,19 +234,21 @@ h2 {
   gap: 8px;
   border: 0;
   border-radius: 8px;
-  font-weight: 800;
+  font-weight: 850;
   letter-spacing: 0;
 }
 
 .primary-action {
   width: 100%;
   margin-top: 12px;
-  background: #1f6f4c;
+  background: linear-gradient(135deg, #1f6f4c, #2e865f);
   color: #ffffff;
+  box-shadow: 0 12px 24px rgba(31, 111, 76, 0.2);
 }
 
 .secondary-action {
-  background: #eef1e9;
+  border: 1px solid #d5ded2;
+  background: #f4f7f1;
   color: #1b241d;
 }
 
@@ -246,7 +269,7 @@ h2 {
   margin-top: 8px;
   color: #47564b;
   font-size: 0.9rem;
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .scanner-option input {
@@ -259,13 +282,13 @@ h2 {
   display: grid;
   gap: 8px;
   margin-top: 12px;
-  padding: 14px;
+  padding: 15px;
   border-radius: 8px;
 }
 
 .candidate-card--valid {
-  border: 1px solid #9bc9ad;
-  background: #eef8f1;
+  border: 1px solid #8dc39f;
+  background: linear-gradient(180deg, #effaf2, #f8fcf8);
 }
 
 .candidate-card--pending {
@@ -310,45 +333,46 @@ h2 {
 .manual-panel,
 .metrics-panel,
 .batch-panel {
-  padding: 16px;
+  padding: 18px;
 }
 
 .metrics-panel {
   display: grid;
-  gap: 14px;
+  gap: 13px;
 }
 
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
 }
 
 .metric {
   min-width: 0;
-  padding: 12px;
-  border: 1px solid #e0e6dc;
+  padding: 13px;
+  border: 1px solid #dfe8dc;
   border-radius: 8px;
-  background: #fbfcf9;
+  background: linear-gradient(180deg, #ffffff, #f8fbf6);
 }
 
 .metric span {
   display: block;
   color: #111812;
-  font-size: 1.25rem;
-  font-weight: 850;
+  font-size: 1.38rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .metric small {
   color: #667267;
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .manual-panel label {
   display: block;
   margin-bottom: 8px;
   color: #26312a;
-  font-weight: 800;
+  font-weight: 850;
 }
 
 .manual-row {
@@ -360,7 +384,7 @@ h2 {
 .manual-row input {
   min-width: 0;
   min-height: 46px;
-  border: 1px solid #cbd4c5;
+  border: 1px solid #cbd8c7;
   border-radius: 8px;
   padding: 0 12px;
   background: #ffffff;
@@ -371,7 +395,7 @@ h2 {
 .email-form textarea {
   width: 100%;
   min-width: 0;
-  border: 1px solid #cbd4c5;
+  border: 1px solid #cbd8c7;
   border-radius: 8px;
   padding: 12px;
   background: #ffffff;
@@ -384,10 +408,16 @@ h2 {
 
 .manual-row button,
 .utility-actions button {
-  border: 1px solid #cbd4c5;
-  background: #ffffff;
+  border: 1px solid #cbd8c7;
+  background: linear-gradient(180deg, #ffffff, #f9fbf7);
   color: #18221b;
   padding: 0 12px;
+}
+
+.utility-actions button:first-child {
+  border-color: #b9d8c3;
+  background: #eef8f1;
+  color: #1f6f4c;
 }
 
 .status-line {
@@ -438,16 +468,22 @@ h2 {
   grid-template-columns: auto 1fr auto;
   gap: 12px;
   align-items: center;
-  padding: 12px;
-  border: 1px solid #e0e6dc;
+  padding: 13px;
+  border: 1px solid #dfe8dc;
   border-radius: 8px;
-  background: #fbfcf9;
+  background: linear-gradient(180deg, #ffffff, #f8fbf6);
 }
 
 .capture-index {
-  color: #7a846b;
-  font-size: 0.8rem;
-  font-weight: 850;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #eef5eb;
+  color: #536d59;
+  font-size: 0.82rem;
+  font-weight: 900;
 }
 
 .capture-list strong {
@@ -461,7 +497,7 @@ h2 {
   place-items: center;
   width: 44px;
   height: 44px;
-  border: 1px solid #e0c2b7;
+  border: 1px solid #e4c8be;
   border-radius: 8px;
   background: #fff7f4;
   color: #9a3412;
@@ -523,21 +559,22 @@ h2 {
 
 @media (max-width: 680px) {
   .app-shell {
-    padding: 14px;
+    padding: 12px;
   }
 
   .hero {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .progress-ring {
     width: 100%;
-    height: auto;
-    min-height: 82px;
-    border-radius: 8px;
-    border-width: 0 0 0 8px;
-    justify-items: start;
-    padding: 16px;
+    min-width: 0;
+  }
+
+  .camera-frame,
+  .camera-frame video {
+    min-height: 270px;
   }
 
   .manual-row,

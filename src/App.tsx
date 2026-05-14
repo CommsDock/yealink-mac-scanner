@@ -152,8 +152,11 @@ export default function App() {
           </p>
         </div>
         <div className={`progress-ring ${complete ? "progress-ring--complete" : ""}`}>
-          <span>{items.length} / {TARGET_COUNT}</span>
           <small>{complete ? "Batch ready" : "Captured"}</small>
+          <span>{items.length} / {TARGET_COUNT}</span>
+          <div className="progress-track" aria-hidden="true">
+            <div style={{ width: `${Math.min((items.length / TARGET_COUNT) * 100, 100)}%` }} />
+          </div>
         </div>
       </section>
 
