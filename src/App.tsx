@@ -1,4 +1,4 @@
-import { Download, ListChecks, Mail, Plus, Trash2, X } from "lucide-react";
+import { Download, ListChecks, Mail, Pencil, Plus, Trash2, X } from "lucide-react";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { ScannerView } from "./components/ScannerView";
 import { addCapture, loadBatch, removeCapture, serializeBatch } from "./domain/batch";
@@ -45,6 +45,9 @@ export default function App() {
 
   const existingMacs = useMemo(() => items.map((item) => item.mac), [items]);
   const complete = items.length >= TARGET_COUNT;
+  const progressPercent = Math.min((items.length / TARGET_COUNT) * 100, 100);
+  const orbCircumference = 188.5;
+  const orbOffset = orbCircumference - (orbCircumference * progressPercent) / 100;
 
   function capture(mac: string, raw: string) {
     const result = addCapture(items, mac, raw);
@@ -142,109 +145,135 @@ export default function App() {
   }
 
   return (
-    <main className="app-shell">
-      <section className="hero">
+    <main className="app-shell radar-shell">
+      <section className="hero hud-top">
         <div>
-          <p className="overline">Yealink provisioning</p>
-          <h1>MAC scanner</h1>
+          <p className="overline">Mission</p>
+          <h1>MAC Scan</h1>
           <p className="hero-copy">
-            Scan the label&apos;s MAC barcode, confirm the detected address, and keep moving through the batch.
+            Yealink provisioning batch
           </p>
+          <div className="mission-batch">
+            <span aria-hidden="true" />
+            Target MAC barcode
+          </div>
         </div>
         <div className={`progress-ring ${complete ? "progress-ring--complete" : ""}`}>
-          <small>{complete ? "Batch ready" : "Captured"}</small>
           <span>{items.length} / {TARGET_COUNT}</span>
-          <div className="progress-track" aria-hidden="true">
-            <div style={{ width: `${Math.min((items.length / TARGET_COUNT) * 100, 100)}%` }} />
-          </div>
+          <small>{complete ? "Batch ready" : "Captured"}</small>
+          <svg viewBox="0 0 72 72" aria-hidden="true">
+            <circle className="progress-track" cx="36" cy="36" r="30" fill="none" strokeWidth="3" />
+            <circle
+              className="progress-fill"
+              cx="36"
+              cy="36"
+              r="30"
+              fill="none"
+              strokeWidth="3"
+              strokeDasharray={orbCircumference}
+              strokeDashoffset={orbOffset}
+            />
+          </svg>
         </div>
       </section>
 
       <ScannerView existingMacs={existingMacs} onConfirm={capture} onScanEvent={recordScanEvent} />
 
-      <section className="metrics-panel">
-        <div>
-          <p className="overline">Session accuracy</p>
-          <h2>Scan summary</h2>
-        </div>
-        <div className="metrics-grid">
-          <Metric label="Confirmed" value={metrics.confirmed} />
-          <Metric label="Manual adds" value={metrics.manualAdds} />
-          <Metric label="Duplicates" value={metrics.duplicateDetections} />
-          <Metric label="Ignored numeric" value={metrics.ignoredNumeric} />
-          <Metric label="Invalid MAC" value={metrics.invalidReads} />
-          <Metric label="Retries" value={metrics.retries} />
-        </div>
-      </section>
+      <section className="operations-drawer">
+        <div className="drawer-handle" aria-hidden="true" />
 
-      <section className="manual-panel">
-        <form onSubmit={handleManualAdd}>
-          <label htmlFor="manual-mac">Manual MAC entry</label>
-          <div className="manual-row">
-            <input
-              id="manual-mac"
-              value={manualValue}
-              onChange={(event) => setManualValue(event.target.value)}
-              placeholder="MAC 44DBD26FB9EF"
-              autoCapitalize="characters"
-              spellCheck={false}
-            />
-            <button type="submit">
-              <Plus aria-hidden="true" />
-              Add manually
-            </button>
-          </div>
-        </form>
-        <p className="status-line" role="status">{message}</p>
-      </section>
-
-      <section className="batch-panel">
-        <div className="section-heading">
+        <section className="metrics-panel">
           <div>
-            <p className="overline">Batch list</p>
-            <h2>Captured MAC addresses</h2>
+            <p className="overline">Session accuracy</p>
+            <h2>Scan summary</h2>
           </div>
-          <div className="utility-actions">
-            <button type="button" onClick={() => setEmailOpen(true)} disabled={items.length === 0}>
-              <Mail aria-hidden="true" />
-              Email list
-            </button>
-            <button type="button" onClick={exportCsv} disabled={items.length === 0}>
-              <Download aria-hidden="true" />
-              Export CSV
-            </button>
+          <div className="metrics-grid">
+            <Metric label="Confirmed" value={metrics.confirmed} tone="ok" />
+            <Metric label="Retries" value={metrics.retries} tone="warn" />
+            <Metric label="Invalid MAC" value={metrics.invalidReads} tone="danger" />
+            <Metric label="Manual adds" value={metrics.manualAdds} />
+            <Metric label="Duplicates" value={metrics.duplicateDetections} />
+            <Metric label="Ignored numeric" value={metrics.ignoredNumeric} />
           </div>
-        </div>
+        </section>
 
-        {items.length === 0 ? (
-          <div className="empty-state">
-            <ListChecks aria-hidden="true" />
-            <p>No MAC addresses captured yet.</p>
+        <section className="manual-panel">
+          <form onSubmit={handleManualAdd}>
+            <label htmlFor="manual-mac">
+              <Pencil aria-hidden="true" />
+              Manual MAC entry
+            </label>
+            <div className="manual-row">
+              <input
+                id="manual-mac"
+                value={manualValue}
+                onChange={(event) => setManualValue(event.target.value)}
+                placeholder="MAC 44DBD26FB9EF"
+                autoCapitalize="characters"
+                spellCheck={false}
+              />
+              <button type="submit">
+                <Plus aria-hidden="true" />
+                Add manually
+              </button>
+            </div>
+          </form>
+          <p className="status-line" role="status">{message}</p>
+        </section>
+
+        <section className="batch-panel">
+          <div className="section-heading">
+            <div>
+              <p className="overline">Latest captures</p>
+              <h2>Captured MAC addresses</h2>
+            </div>
+            <div className="utility-actions">
+              <button
+                type="button"
+                aria-label="Email list"
+                onClick={() => setEmailOpen(true)}
+                disabled={items.length === 0}
+              >
+                <Mail aria-hidden="true" />
+                Email batch
+              </button>
+              <button type="button" aria-label="Export CSV" onClick={exportCsv} disabled={items.length === 0}>
+                <Download aria-hidden="true" />
+                CSV
+              </button>
+            </div>
           </div>
-        ) : (
-          <ol className="capture-list" aria-label="Captured MAC addresses">
-            {items.map((item, index) => (
-              <li key={item.id}>
-                <span className="capture-index">{String(index + 1).padStart(2, "0")}</span>
-                <div>
-                  <strong>{item.mac}</strong>
-                  <small>{new Date(item.capturedAt).toLocaleString()}</small>
-                </div>
-                <button
-                  type="button"
-                  className="icon-button"
-                  aria-label={`Remove ${item.mac}`}
-                  onClick={() => {
-                    setItems(removeCapture(items, item.id));
-                    setMessage(`${item.mac} removed.`);
-                  }}
-                >
-                  <Trash2 aria-hidden="true" />
-                </button>
-              </li>
-            ))}
-          </ol>
-        )}
+
+          {items.length === 0 ? (
+            <div className="empty-state">
+              <ListChecks aria-hidden="true" />
+              <p>No MAC addresses captured yet.</p>
+            </div>
+          ) : (
+            <ol className="capture-list" aria-label="Captured MAC addresses">
+              {items.map((item, index) => (
+                <li key={item.id}>
+                  <span className="capture-index">{String(index + 1).padStart(2, "0")}</span>
+                  <div>
+                    <strong>{item.mac}</strong>
+                    <small>{new Date(item.capturedAt).toLocaleString()}</small>
+                  </div>
+                  <button
+                    type="button"
+                    className="icon-button"
+                    aria-label={`Remove ${item.mac}`}
+                    onClick={() => {
+                      setItems(removeCapture(items, item.id));
+                      setMessage(`${item.mac} removed.`);
+                    }}
+                  >
+                    <Trash2 aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
       </section>
 
       {emailOpen ? (
@@ -324,9 +353,9 @@ export default function App() {
   );
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
+function Metric({ label, value, tone }: { label: string; value: number; tone?: "ok" | "warn" | "danger" }) {
   return (
-    <div className="metric">
+    <div className={`metric ${tone ? `metric--${tone}` : ""}`}>
       <span aria-label={`${label} count`}>{value}</span>
       <small>{label}</small>
     </div>

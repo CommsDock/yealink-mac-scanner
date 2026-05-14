@@ -155,9 +155,28 @@ export function ScannerView({
     <section className="scanner-panel">
       <div className="camera-frame">
         <video ref={videoRef} aria-label="Scanner camera preview" muted playsInline />
+        <div className="scanner-grid" aria-hidden="true" />
+        <div className="sonar" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+          <span />
+          <i />
+        </div>
         <div className="scan-guide" aria-hidden="true">
           <em>Aim at MAC barcode only</em>
           <span />
+        </div>
+        <div className="crosshair" aria-hidden="true">
+          <span />
+          <span />
+          <i />
+        </div>
+        <div className="scanner-stage-label scanner-stage-label--top" aria-hidden="true">
+          {state.kind === "idle" ? "Standby" : "Scanning"}
+        </div>
+        <div className="scanner-stage-label scanner-stage-label--bottom" aria-hidden="true">
+          Target MAC barcode
         </div>
       </div>
 
